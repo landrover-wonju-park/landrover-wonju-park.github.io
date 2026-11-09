@@ -34,7 +34,7 @@ qs('#bookingModal').addEventListener('click',e=>{if(e.target.id==='bookingModal'
 function sendBooking(e){e.preventDefault();const v=id=>qs('#'+id).value.trim();latestBooking=`[랜드로버 원주전시장 시승 신청]\n희망 차량: ${v('car')}\n희망 일시: ${v('date')} ${v('time')}\n성함: ${v('name')}\n연락처: ${v('phone')}\n기타: ${v('memo')||'없음'}\n담당: 박천태 부장`;qs('#sentInfo').classList.remove('hidden');window.location.href=`sms:${phone}?body=${encodeURIComponent(latestBooking)}`}
 async function copyText(t,ok='복사되었습니다.'){try{await navigator.clipboard.writeText(t);alert(ok)}catch(e){prompt('아래 내용을 복사하세요.',t)}}
 function copyBooking(){copyText(latestBooking)}function copyAddress(){copyText('강원특별자치도 원주시 북원로 2515')}
-function shareSite(){const url=location.href;if(location.protocol==='file:'){alert('홈페이지를 인터넷 주소에 게시하면 고객에게 링크를 공유할 수 있습니다.');return}if(navigator.share){navigator.share({title:document.title,url}).catch(()=>{})}else copyText(url,'홈페이지 주소가 복사되었습니다.')}
+function shareSite(){window.open('business-card.jpg','_blank')}
 function saveContact(){const v=`BEGIN:VCARD\r\nVERSION:3.0\r\nFN:박천태 부장\r\nORG:KCC오토모빌 원주전시장\r\nTITLE:랜드로버 영업 부장\r\nTEL;TYPE=CELL:010-3158-2612\r\nADR;TYPE=WORK:;;북원로 2515;원주시;강원특별자치도;;;\r\nEND:VCARD`;const blob=new Blob([v],{type:'text/vcard;charset=utf-8'}),u=URL.createObjectURL(blob),a=document.createElement('a');a.href=u;a.download='박천태_랜드로버_연락처.vcf';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),5000)}
 </script>
 </body></html>
