@@ -242,7 +242,8 @@ button{cursor:pointer}
 .success{padding:16px;background:#d8e7d8;color:#26412b;line-height:1.8}
 
 @media(max-width:800px){
-.links{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;font-size:12px;width:100%;padding:10px 0}
+.links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;width:100%;padding:10px 0}
+.links a{display:flex;align-items:center;justify-content:center;min-height:44px;padding:10px 6px;border:1px solid #738974;background:#18251d;color:#fff;text-align:center;font-size:13px;line-height:1.3}
   .hero{min-height:675px;padding-bottom:72px}
   .cards,.models,.video-grid{grid-template-columns:1fr 1fr}
   .model{min-height:280px}
