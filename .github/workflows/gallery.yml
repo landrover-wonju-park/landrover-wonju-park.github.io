@@ -1,0 +1,111 @@
+name: Vehicle Gallery
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Prepare website
+        run: |
+          mkdir -p _site
+          rsync -a --exclude='.git*' --exclude='_site' ./ _site/
+
+      - name: Generate photo list
+        run: |
+          python3 <<'PY'
+          import json
+          from pathlib import Path
+          from urllib.parse import quote
+
+          root = Path("_site")
+          photos = []
+
+          names = {
+              "rr": "레인지로버",
+              "rrs": "레인지로버 스포츠",
+              "defender": "디펜더",
+              "velar": "벨라"
+          }
+
+          extensions = {
+              ".jpg", ".jpeg", ".png",
+              ".webp", ".avif", ".gif"
+          }
+
+          for model, car_name in names.items():
+              for category in ["exterior", "interior"]:
+                  folder = root / "photos" / model / category
+
+                  if not folder.exists():
+                      continue
+
+                  for file in sorted(folder.rglob("*")):
+                      if not file.is_file():
+                          continue
+
+                      if file.suffix.lower() not in extensions:
+                          continue
+
+                      relative = file.relative_to(root)
+                      label = file.stem
+
+                      if file.parent != folder:
+                          label = file.parent.name
+                      elif label[:1].isdigit() or label.lower().startswith(("kakaotalk", "img", "dsc", "pxl")):
+                          label = car_name + (
+                              " 외장" if category == "exterior"
+                              else " 실내"
+                          )
+
+                      photos.append({
+                          "model": model,
+                          "category": category,
+                          "name": label,
+                          "src": quote(relative.as_posix(), safe="/")
+                      })
+
+          (root / "photos.json").write_text(
+              json.dumps(photos, ensure_ascii=False, indent=2),
+              encoding="utf-8"
+          )
+
+          print(f"Registered photos: {len(photos)}")
+          PY
+
+      - name: Upload website
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy website
+        id: deployment
+        uses: actions/deploy-pages@v4
