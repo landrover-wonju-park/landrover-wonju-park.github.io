@@ -351,9 +351,7 @@ async function loadAutoPhotos() {
                         name: file.name
                             .replace(/\.[^.]+$/, "")
                             .replace(/[_-]/g, " "),
-                        src: file.path.split("/")
-                            .map(encodeURIComponent)
-                            .join("/")
+                   src: file.download_url
                     }));
 
                 photos[model][category] = [
