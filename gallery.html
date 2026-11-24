@@ -324,78 +324,27 @@ async function loadPhotos() {
     showGallery();
 
     try {
-        const api =
-            "https://api.github.com/repos/" +
-            owner + "/" + repo +
-            "/git/trees/main?recursive=1";
-
-        const response = await fetch(api, {
-            cache: "no-cache"
-        });
+        const response = await fetch(
+            "./photos.json?v=" + Date.now(),
+            { cache: "no-store" }
+        );
 
         if (!response.ok) {
             throw new Error("HTTP " + response.status);
         }
 
-        const data = await response.json();
+        const newPhotos = await response.json();
 
-        if (!Array.isArray(data.tree)) {
+        if (!Array.isArray(newPhotos)) {
             throw new Error("사진 목록 오류");
         }
-
-        if (data.truncated) {
-            throw new Error("사진 목록이 너무 많습니다");
-        }
-
-        const newPhotos = [];
-
-        data.tree.forEach(file => {
-            if (file.type !== "blob") return;
-
-            const match = file.path.match(
-                /^photos\/(rr|rrs|defender|velar)\/(exterior|interior)\/(.+\.(jpg|jpeg|png|webp|avif|gif))$/i
-            );
-
-            if (!match) return;
-
-            const model = match[1];
-            const category = match[2];
-            const filename = file.path.split("/").pop();
-
-            const path = file.path.split("/")
-                .map(encodeURIComponent)
-                .join("/");
-
-            let name = filename
-                .replace(/\.[^.]+$/, "")
-                .replace(/[_-]/g, " ");
-
-            if (/^(KakaoTalk|IMG|DSC|PXL|Screenshot|\d)/i.test(name)) {
-                const subfolder = match[3].split("/");
-                name = subfolder.length > 1
-                    ? subfolder[0]
-                    : carNames[model] +
-                      (category === "exterior"
-                        ? " 외장"
-                        : " 실내");
-            }
-
-            newPhotos.push({
-                model: model,
-                category: category,
-                name: name,
-                src: "https://raw.githubusercontent.com/" +
-                    owner + "/" + repo + "/main/" + path,
-                fallback: "./" + path
-            });
-        });
 
         allPhotos = [originalPhoto, ...newPhotos];
         loadState = "ready";
 
     } catch (error) {
         loadState = "error";
-        errorMessage = "자동 사진 불러오기 실패: " + error.message;
+        errorMessage = "사진 불러오기 실패: " + error.message;
     }
 
     showGallery();
