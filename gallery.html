@@ -323,6 +323,53 @@ document.addEventListener("keydown", event => {
 
 showGallery();
 
-</script>
+const photoApi =
+    "https://api.github.com/repos/landrover-wonju-park/landrover-wonju-park.github.io/contents/photos";
+
+async function loadAutoPhotos() {
+    const models = ["rr", "rrs", "defender", "velar"];
+    const categories = ["exterior", "interior"];
+
+    await Promise.all(models.flatMap(model =>
+        categories.map(async category => {
+            try {
+                const response = await fetch(
+                    `${photoApi}/${model}/${category}?ref=main`,
+                    { cache: "no-cache" }
+                );
+
+                if (!response.ok) return;
+
+                const files = await response.json();
+
+                const newPhotos = files
+                    .filter(file =>
+                        file.type === "file" &&
+                        /\.(jpg|jpeg|png|webp|avif)$/i.test(file.name)
+                    )
+                    .map(file => ({
+                        name: file.name
+                            .replace(/\.[^.]+$/, "")
+                            .replace(/[_-]/g, " "),
+                        src: file.path.split("/")
+                            .map(encodeURIComponent)
+                            .join("/")
+                    }));
+
+                photos[model][category] = [
+                    ...photos[model][category],
+                    ...newPhotos
+                ];
+
+            } catch (error) {
+                console.log("사진 불러오기 실패", error);
+            }
+        })
+    ));
+
+    showGallery();
+}
+
+loadAutoPhotos();</script>
 </body>
 </html>
