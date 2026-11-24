@@ -5,7 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>랜드로버 차량 갤러리</title>
 <style>
-* { box-sizing: border-box; }
+* {
+    box-sizing: border-box;
+}
 body {
     margin: 0;
     background: #f5f5f3;
@@ -30,11 +32,11 @@ header p {
     color: white;
     text-decoration: none;
     border: 1px solid #aaa;
-    padding: 10px 20px;
+    padding: 12px 20px;
     margin-top: 12px;
 }
 .container {
-    max-width: 1100px;
+    max-width: 1200px;
     margin: auto;
     padding: 25px 15px;
 }
@@ -71,7 +73,9 @@ button {
     gap: 10px;
     margin-bottom: 25px;
 }
-.tab-btn { width: 150px; }
+.tab-btn {
+    width: 150px;
+}
 .gallery {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -89,24 +93,25 @@ button {
     aspect-ratio: 4/3;
     object-fit: contain;
     cursor: zoom-in;
+    background: #eee;
 }
 .photo-card h3 {
-    font-size: 15px;
+    font-size: 14px;
     text-align: center;
-    margin: 16px 8px;
+    margin: 14px 8px;
 }
 .empty {
     grid-column: 1 / -1;
-    padding: 60px 15px;
+    padding: 50px 15px;
     text-align: center;
     color: #777;
     background: white;
 }
-.notice {
+.notice, #status {
     text-align: center;
     font-size: 12px;
     color: #777;
-    margin-top: 30px;
+    margin: 20px 0;
     line-height: 1.8;
 }
 footer {
@@ -121,7 +126,7 @@ footer {
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,.92);
+    background: rgba(0,0,0,.95);
     z-index: 9999;
     align-items: center;
     justify-content: center;
@@ -129,10 +134,12 @@ footer {
 }
 .viewer img {
     max-width: 95%;
-    max-height: 80vh;
+    max-height: 85vh;
     object-fit: contain;
 }
-.viewer p { color: white; }
+.viewer p {
+    color: white;
+}
 .close {
     position: absolute;
     right: 20px;
@@ -142,6 +149,12 @@ footer {
     border: 0;
     font-size: 36px;
 }
+.retry {
+    padding: 8px 15px;
+    background: white;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+}
 @media (max-width: 600px) {
     .models {
         grid-template-columns: repeat(2, 1fr);
@@ -150,9 +163,15 @@ footer {
         grid-template-columns: repeat(2, 1fr);
         gap: 10px;
     }
-    header h1 { font-size: 21px; }
-    .model-title { font-size: 23px; }
-    .photo-card h3 { font-size: 13px; }
+    header h1 {
+        font-size: 21px;
+    }
+    .model-title {
+        font-size: 23px;
+    }
+    .photo-card h3 {
+        font-size: 12px;
+    }
 }
 </style>
 </head>
@@ -180,18 +199,19 @@ footer {
     <button class="tab-btn" data-tab="interior">실내 시트</button>
 </div>
 
+<div id="status"></div>
 <div class="gallery" id="gallery"></div>
 
 <p class="notice">
-    실제 차량 색상은 촬영 환경 및 화면 설정에 따라 다르게 보일 수 있습니다.<br>
-    색상별 출고 가능 여부는 별도 문의 부탁드립니다.
+실제 차량 색상은 촬영 환경 및 화면 설정에 따라 다르게 보일 수 있습니다.<br>
+색상별 출고 가능 여부는 별도 문의 부탁드립니다.
 </p>
 
 </main>
 
 <footer>
-    KCC AUTOMOBILE<br>
-    랜드로버 원주전시장 박천태 부장
+KCC AUTOMOBILE<br>
+랜드로버 원주전시장 박천태 부장
 </footer>
 
 <div class="viewer" id="viewer">
@@ -201,6 +221,8 @@ footer {
 </div>
 
 <script>
+const owner = "landrover-wonju-park";
+const repo = "landrover-wonju-park.github.io";
 
 const carNames = {
     rr: "레인지로버",
@@ -209,47 +231,62 @@ const carNames = {
     velar: "벨라"
 };
 
-// 차량 사진 등록 공간
-
-const photos = {
-    rr: {
-        exterior: [
-    {name: "레인지로버", src: "KakaoTalk_20261121_153022327.jpg"}],
-        interior: []
-    },
-    rrs: {
-        exterior: [],
-        interior: []
-    },
-    defender: {
-        exterior: [],
-        interior: []
-    },
-    velar: {
-        exterior: [],
-        interior: []
-    }
+const originalPhoto = {
+    model: "rr",
+    category: "exterior",
+    name: "레인지로버",
+    src: "./KakaoTalk_20261121_153022327.jpg"
 };
 
 let currentModel = "rr";
 let currentTab = "exterior";
+let allPhotos = [originalPhoto];
+let loadState = "loading";
+let errorMessage = "";
 
 function showGallery() {
     document.getElementById("modelTitle").textContent =
         carNames[currentModel];
 
     const gallery = document.getElementById("gallery");
+    const status = document.getElementById("status");
+
     gallery.innerHTML = "";
+    status.innerHTML = "";
 
-    const items = photos[currentModel][currentTab];
+    const items = allPhotos.filter(item =>
+        item.model === currentModel &&
+        item.category === currentTab
+    );
 
-    if (items.length === 0) {
-        gallery.innerHTML =
-            '<div class="empty">사진 준비 중입니다.</div>';
+    if (loadState === "loading") {
+        status.textContent = "추가 사진을 불러오는 중입니다.";
+    } else if (loadState === "error") {
+        status.textContent = errorMessage + " ";
+
+        const retry = document.createElement("button");
+        retry.className = "retry";
+        retry.textContent = "다시 불러오기";
+        retry.onclick = loadPhotos;
+        status.appendChild(retry);
+    } else {
+        status.textContent = "등록 사진 " + items.length + "장";
+    }
+
+    if (!items.length) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = loadState === "loading"
+            ? "사진을 불러오는 중입니다."
+            : loadState === "error"
+                ? "사진 목록을 확인하지 못했습니다."
+                : "사진 준비 중입니다.";
+
+        gallery.appendChild(empty);
         return;
     }
 
-    items.forEach(item => {
+    items.forEach((item, index) => {
         const card = document.createElement("div");
         card.className = "photo-card";
 
@@ -258,29 +295,110 @@ function showGallery() {
         img.alt = item.name;
         img.loading = "lazy";
 
+        const title = document.createElement("h3");
+        title.textContent = item.name;
+
         img.onclick = () => {
-            document.getElementById("largePhoto").src = item.src;
-            document.getElementById("largePhoto").alt = item.name;
+            document.getElementById("largePhoto").src = img.src;
             document.getElementById("photoName").textContent = item.name;
             document.getElementById("viewer").style.display = "flex";
         };
 
         img.onerror = () => {
-            if (!card.isConnected) return;
-            card.remove();
-            if (!gallery.children.length) {
-                gallery.innerHTML =
-                    '<div class="empty">사진 준비 중입니다.</div>';
+            if (item.fallback && img.dataset.retried !== "yes") {
+                img.dataset.retried = "yes";
+                img.src = item.fallback;
+            } else {
+                title.textContent = "사진 불러오기 오류";
             }
         };
-
-        const title = document.createElement("h3");
-        title.textContent = item.name;
 
         card.appendChild(img);
         card.appendChild(title);
         gallery.appendChild(card);
     });
+}
+
+async function loadPhotos() {
+    loadState = "loading";
+    showGallery();
+
+    try {
+        const api =
+            "https://api.github.com/repos/" +
+            owner + "/" + repo +
+            "/git/trees/main?recursive=1";
+
+        const response = await fetch(api, {
+            cache: "no-cache"
+        });
+
+        if (!response.ok) {
+            throw new Error("HTTP " + response.status);
+        }
+
+        const data = await response.json();
+
+        if (!Array.isArray(data.tree)) {
+            throw new Error("사진 목록 오류");
+        }
+
+        if (data.truncated) {
+            throw new Error("사진 목록이 너무 많습니다");
+        }
+
+        const newPhotos = [];
+
+        data.tree.forEach(file => {
+            if (file.type !== "blob") return;
+
+            const match = file.path.match(
+                /^photos\/(rr|rrs|defender|velar)\/(exterior|interior)\/(.+\.(jpg|jpeg|png|webp|avif|gif))$/i
+            );
+
+            if (!match) return;
+
+            const model = match[1];
+            const category = match[2];
+            const filename = file.path.split("/").pop();
+
+            const path = file.path.split("/")
+                .map(encodeURIComponent)
+                .join("/");
+
+            let name = filename
+                .replace(/\.[^.]+$/, "")
+                .replace(/[_-]/g, " ");
+
+            if (/^(KakaoTalk|IMG|DSC|PXL|Screenshot|\d)/i.test(name)) {
+                const subfolder = match[3].split("/");
+                name = subfolder.length > 1
+                    ? subfolder[0]
+                    : carNames[model] +
+                      (category === "exterior"
+                        ? " 외장"
+                        : " 실내");
+            }
+
+            newPhotos.push({
+                model: model,
+                category: category,
+                name: name,
+                src: "https://raw.githubusercontent.com/" +
+                    owner + "/" + repo + "/main/" + path,
+                fallback: "./" + path
+            });
+        });
+
+        allPhotos = [originalPhoto, ...newPhotos];
+        loadState = "ready";
+
+    } catch (error) {
+        loadState = "error";
+        errorMessage = "자동 사진 불러오기 실패: " + error.message;
+    }
+
+    showGallery();
 }
 
 document.querySelectorAll(".model-btn").forEach(btn => {
@@ -322,52 +440,8 @@ document.addEventListener("keydown", event => {
 });
 
 showGallery();
+loadPhotos();
+</script>
 
-const photoApi =
-    "https://api.github.com/repos/landrover-wonju-park/landrover-wonju-park.github.io/contents/photos";
-
-async function loadAutoPhotos() {
-    const models = ["rr", "rrs", "defender", "velar"];
-    const categories = ["exterior", "interior"];
-
-    await Promise.all(models.flatMap(model =>
-        categories.map(async category => {
-            try {
-                const response = await fetch(
-                    `${photoApi}/${model}/${category}?ref=main`,
-                    { cache: "no-cache" }
-                );
-
-                if (!response.ok) return;
-
-                const files = await response.json();
-
-                const newPhotos = files
-                    .filter(file =>
-                        file.type === "file" &&
-                        /\.(jpg|jpeg|png|webp|avif)$/i.test(file.name)
-                    )
-                    .map(file => ({
-                        name: file.name
-                            .replace(/\.[^.]+$/, "")
-                            .replace(/[_-]/g, " "),
-                   src: file.download_url
-                    }));
-
-                photos[model][category] = [
-                    ...photos[model][category],
-                    ...newPhotos
-                ];
-
-            } catch (error) {
-                console.log("사진 불러오기 실패", error);
-            }
-        })
-    ));
-
-    showGallery();
-}
-
-loadAutoPhotos();</script>
 </body>
 </html>
