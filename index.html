@@ -892,6 +892,46 @@ function toggleMobileMenu(){
   btn.textContent=isOpen?'✕':'☰';
 }  
 </script>
+<a href="https://talk.naver.com/profile/wzbxhmi"
+   target="_blank"
+   rel="noopener noreferrer"
+   class="naver-talk-btn"
+   aria-label="네이버 톡톡 상담하기">
+  <span>💬</span> 네이버 톡톡 상담
+</a>
 
+<style>
+.naver-talk-btn {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px;
+  background: #03C75A;
+  color: #ffffff !important;
+  border-radius: 30px;
+  font-size: 15px;
+  font-weight: bold;
+  text-decoration: none;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.2);
+}
+
+.naver-talk-btn:hover {
+  background: #02A94D;
+  color: #ffffff !important;
+}
+
+@media (max-width: 600px) {
+  .naver-talk-btn {
+    right: 12px;
+    bottom: 16px;
+    padding: 12px 14px;
+    font-size: 13px;
+  }
+}
+</style>
 </body>
 </html>
