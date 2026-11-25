@@ -903,13 +903,7 @@ function toggleMobileMenu(){
 }  
 </script>
 <a href="https://talk.naver.com/profile/wzbxhmi" target="_blank" rel="noopener noreferrer" class="naver-talk-btn" aria-label="네이버 톡톡 상담하기">
-  <span class="naver-talk-icon">✦</span>
-  <span class="naver-talk-content">
-    <span class="naver-talk-label">LAND ROVER · WONJU</span>
-    <span class="naver-talk-title">네이버 톡톡 상담</span>
-    <span class="naver-talk-desc">차량견적 · 시승예약 · 구매문의</span>
-  </span>
-  <span class="naver-talk-arrow">›</span>
+ <img src="naver_talk_premium_banner.png" alt="네이버 톡톡 상담하기" style="width:300px;max-width:100%;height:auto;display:block;border-radius:12px;">
 </a>
 
 <style>
@@ -918,63 +912,21 @@ function toggleMobileMenu(){
   right: 20px;
   bottom: 20px;
   z-index: 9999;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background: #142F25;
-  color: #ffffff !important;
-  border: 1px solid #BCA36B;
-  border-radius: 14px;
+  display: block;
+  width: 300px;
+  max-width: calc(100vw - 24px);
+  padding: 0;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 12px;
+  box-shadow: none !important;
   text-decoration: none;
-  box-shadow: 0 6px 22px rgba(0,0,0,0.28);
-  transition: background 0.2s ease, transform 0.2s ease;
-  font-family: inherit;
+  overflow: hidden;
 }
 .naver-talk-btn:hover {
   background: #204737;
   transform: translateY(-2px);
-}
-.naver-talk-icon {
-  color: #D5BF89;
-  font-size: 27px;
-}
-.naver-talk-content {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.naver-talk-label {
-  color: #D5BF89;
-  font-size: 10px;
-  letter-spacing: 1.3px;
-}
-.naver-talk-title {
-  color: #ffffff;
-  font-size: 16px;
-  font-weight: 700;
-}
-.naver-talk-desc {
-  color: #D5BF89;
-  font-size: 11px;
-}
-.naver-talk-arrow {
-  color: #D5BF89;
-  font-size: 26px;
-}
-@media (max-width: 600px) {
-  .naver-talk-btn {
-    right: 12px;
-    bottom: 16px;
-    padding: 10px 12px;
-    gap: 8px;
-    max-width: calc(100vw - 24px);
-    box-sizing: border-box;
-  }
-  .naver-talk-title { font-size: 14px; }
-  .naver-talk-desc { font-size: 10px; }
-  .naver-talk-icon { font-size: 22px; }
-}
+
 </style>
 </body>
 </html>
