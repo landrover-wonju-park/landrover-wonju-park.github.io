@@ -1,0 +1,4 @@
+ -- Quota & Usage information --
+
+Quota size : 1073741824S,0C byte
+Usage size : 1015451945S,0C byte
