@@ -21,7 +21,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
-
+        with:
+          fetch-depth: 0
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
@@ -59,7 +60,7 @@ jobs:
                   if not folder.exists():
                       continue
 
-                  for file in sorted(folder.rglob("*")):
+                  for file in sorted(folder.rglob("*"), key=lambda p: int(__import__("subprocess").check_output(["git", "log", "-1", "--format=%ct", "--", str(p.relative_to(root))]).strip() or b"0"), reverse=True):
                       if not file.is_file():
                           continue
 
