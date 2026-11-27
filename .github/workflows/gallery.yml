@@ -85,11 +85,21 @@ jobs:
                           "src": quote(relative.as_posix(), safe="/")
                       })
 
-          (root / "photos.json").write_text(
+              (root / "photos.json").write_text(
               json.dumps(photos, ensure_ascii=False, indent=2),
               encoding="utf-8"
           )
 
+          hero_photos = [
+              quote(file.relative_to(root).as_posix(), safe="/")
+              for file in sorted((root / "hero").rglob("*"))
+              if file.is_file() and file.suffix.lower() in extensions
+          ]
+
+          (root / "hero.json").write_text(
+              json.dumps(hero_photos, ensure_ascii=False, indent=2),
+              encoding="utf-8"
+          )
           print(f"Registered photos: {len(photos)}")
           PY
 
