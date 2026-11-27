@@ -1039,14 +1039,19 @@ function toggleMobileMenu(){
   }
 })();
 </script>
-</body>
-  <style>
+<style>
 @media screen and (max-width: 768px) {
 
   .hero {
     min-height: auto !important;
     padding: calc(56.25vw + 90px) 0 40px !important;
     background: #101914 !important;
+    background-image: none !important;
+  }
+
+  .hero::before,
+  .hero::after {
+    display: none !important;
   }
 
   .hero-slide {
@@ -1056,16 +1061,20 @@ function toggleMobileMenu(){
     bottom: auto !important;
     width: 100% !important;
     height: 56.25vw !important;
-    background-size: 100% 100%, contain !important;
+    background-color: #101914 !important;
+    background-size: 0 0, contain !important;
     background-position: center !important;
     background-repeat: no-repeat !important;
+    z-index: 1 !important;
   }
 
   .hero .wrap {
     position: relative;
     z-index: 2;
+    background: transparent !important;
   }
 
 }
 </style>
+</body>
 </html>
